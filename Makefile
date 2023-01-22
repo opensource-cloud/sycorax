@@ -1,2 +1,2 @@
 start:
-	gin --port 8080 
+	gin --port 8080

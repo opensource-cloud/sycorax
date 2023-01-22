@@ -1,4 +1,4 @@
-package middlewares
+package server
 
 import (
 	"github.com/gin-gonic/gin"
@@ -11,6 +11,8 @@ func TracingMiddleware() gin.HandlerFunc {
 		if traceId == "" {
 			traceId = core.NewUUID()
 		}
+
 		c.Header("X-Trace-Id", traceId)
+		c.Set("traceId", traceId)
 	}
 }

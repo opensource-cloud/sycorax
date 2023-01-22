@@ -1,0 +1,18 @@
+default:
+  config:
+    type: FIFO
+    publish:
+      driver: MEMORY
+      maxSizeOfMessage: 5
+    delivery:
+      driver: HTTP_POLLING
+      rawMessage: true
+
+queues:
+  my-first-queue:
+    name: my-first-queue
+    acl: allow-read-and-write
+
+  my-second-queue:
+    name: my-second-queue
+    acl: allow-only-read

@@ -1,2 +1,6 @@
 # Files
 gin-bin
+.idea
+
+# Envs
+.env

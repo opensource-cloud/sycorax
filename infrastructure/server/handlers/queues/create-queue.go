@@ -1,10 +1,10 @@
-package handlers
+package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/we-are-uranus/sycorax/domain/dtos"
-	"github.com/we-are-uranus/sycorax/domain/entities"
-	"github.com/we-are-uranus/sycorax/infrastructure/errors"
+	dtos "github.com/we-are-uranus/sycorax/domain/dtos"
+	entities "github.com/we-are-uranus/sycorax/domain/entities"
+	errors "github.com/we-are-uranus/sycorax/infrastructure/server/errors"
 	"net/http"
 )
 
