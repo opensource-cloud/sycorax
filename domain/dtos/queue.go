@@ -9,5 +9,5 @@ type QueueConfig struct {
 
 type CreateQueueDTO struct {
 	Name   string       `json:"name" binding:"required"`
-	Config *QueueConfig `json:"yaml" binding:"required"`
+	Config *QueueConfig `json:"config" binding:"required"`
 }
