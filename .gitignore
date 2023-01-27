@@ -4,3 +4,6 @@ gin-bin
 
 # Envs
 .env
+
+# Folders
+resources
