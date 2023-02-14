@@ -1,9 +1,10 @@
 package domain
 
 import (
-	"github.com/we-are-uranus/sycorax/core"
-	dtos "github.com/we-are-uranus/sycorax/domain/dtos"
 	"time"
+
+	"github.com/opensource-cloud/sycorax/core"
+	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
 )
 
 type (

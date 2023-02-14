@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/we-are-uranus/sycorax/core"
+	"github.com/opensource-cloud/sycorax/core"
 )
 
 func TracingMiddleware() gin.HandlerFunc {

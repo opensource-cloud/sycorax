@@ -1,9 +1,11 @@
 # Files
 gin-bin
-.idea
+sycorax
 
 # Envs
 .env
 
 # Folders
+.idea
+.vscode
 resources

@@ -15,6 +15,7 @@ func PostCreateQueue(c *gin.Context) {
 	err := c.BindJSON(&dto)
 	if err != nil {
 		body := errors.NewInvalidSchemaError(err)
+		body.ParseErrorsToFields(c, dto)
 		c.IndentedJSON(http.StatusBadRequest, body)
 		return
 	}

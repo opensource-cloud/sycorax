@@ -2,15 +2,15 @@ package server
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/gin-gonic/gin"
-	"github.com/we-are-uranus/sycorax/infrastructure/config"
-	middlewares "github.com/we-are-uranus/sycorax/infrastructure/server/middlewares"
-	routes "github.com/we-are-uranus/sycorax/infrastructure/server/routes"
+	"github.com/opensource-cloud/sycorax/infrastructure/config"
+	middlewares "github.com/opensource-cloud/sycorax/infrastructure/server/middlewares"
+	routes "github.com/opensource-cloud/sycorax/infrastructure/server/routes"
 )
 
-func StartHttpServer() {
-	envs := config.GetEnvVars()
-
+func StartHttpServer(app *config.App) {
 	r := gin.Default()
 
 	r.Use(middlewares.HeadersMiddleware())
@@ -21,13 +21,19 @@ func StartHttpServer() {
 	routes.LoadRestRoutes(r)
 
 	// Set all trusted proxies for development environment
-	if envs.IsDev {
-		r.SetTrustedProxies([]string{"0.0.0.0"})
+	if app.IsDEV {
+		err := r.SetTrustedProxies([]string{"0.0.0.0"})
+		if err != nil {
+			panic("Error setting localhost as trusted proxy")
+		}
 	}
 
-	err := r.Run(fmt.Sprintf(":%s", envs.HTTP.Port))
+	port := fmt.Sprintf(":%s", app.Vars.Http.Port)
+	err := r.Run()
 
 	if err != nil {
-		panic("Was not possible to start the service")
+		panic("Error running the server")
 	}
+
+	log.Print(fmt.Printf("Server is running on port %s", port))
 }

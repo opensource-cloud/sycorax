@@ -1,9 +1,14 @@
 package main
 
 import (
-	http "github.com/we-are-uranus/sycorax/infrastructure/server"
+	"github.com/opensource-cloud/sycorax/infrastructure/config"
+	server "github.com/opensource-cloud/sycorax/infrastructure/server"
 )
 
 func main() {
-	http.StartHttpServer()
+	app := config.GetApp()
+
+	app.LoadResourcesFolder()
+
+	server.StartHttpServer(app)
 }
