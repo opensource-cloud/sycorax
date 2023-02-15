@@ -1,2 +1,5 @@
+start-watch:
+	gin --appPort 8080
+
 start:
-	gin --port 8080
+	go run main.go
