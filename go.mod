@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/gin-gonic/gin v1.8.2
 	github.com/google/uuid v1.3.0
-	github.com/we-are-uranus/sycorax v0.0.0-20230122232806-ed4f55d15afd
+	github.com/opensource-cloud/sycorax v0.0.0-20230122232806-ed4f55d15afd
 	gopkg.in/go-playground/validator.v8 v8.18.2
 )
 

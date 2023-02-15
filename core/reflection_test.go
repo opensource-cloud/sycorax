@@ -1,10 +1,11 @@
 package core_test
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/we-are-uranus/sycorax/core"
 	"reflect"
 	"testing"
+
+	"github.com/opensource-cloud/sycorax/core"
+	"github.com/stretchr/testify/assert"
 )
 
 type (

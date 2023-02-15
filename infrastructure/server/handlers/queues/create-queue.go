@@ -1,11 +1,12 @@
 package server
 
 import (
-	"github.com/gin-gonic/gin"
-	dtos "github.com/we-are-uranus/sycorax/domain/dtos"
-	entities "github.com/we-are-uranus/sycorax/domain/entities"
-	errors "github.com/we-are-uranus/sycorax/infrastructure/server/errors"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
+	entities "github.com/opensource-cloud/sycorax/domain/entities"
+	errors "github.com/opensource-cloud/sycorax/infrastructure/server/errors"
 )
 
 // PostCreateQueue its a handler for POST /queues router
