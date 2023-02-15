@@ -1,44 +1,22 @@
 version: '3'
 
 services:
-  sycorax-mongo-express:
-    image: mongo-express
-    container_name: sycorax-mongo-express
-    restart: on-failure
-    ports:
-      - 8081:8081
+  sycorax_service:
+    container_name: sycorax-service
+    build: .
     environment:
-      ME_CONFIG_BASICAUTH_USERNAME: ${MONGODB_USERNAME:-sycorax}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGODB_PASSWORD:-Sycorax@2023!}
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USERNAME:-admin}
-      ME_CONFIG_MONGODB_ADMINPASSWORD:  ${MONGODB_ROOT_PASSWORD:-toor}
-    links:
-      - sycorax-mongodb
+      APP_ENV: $APP_ENV
+      APP_PORT: 8080
+      APP_DEBUG: $APP_DEBUG
+      RESOURCES_PATH: $RESOURCES_PATH
+      GIN_MODE: $GIN_MODE
+    ports:
+      - 8080:8080
     networks:
       - sycorax-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  sycorax-mongodb:
-    image: 'mongo'
-    container_name: sycorax-mongodb
-    restart: on-failure
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD:-toor}
-      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-sycorax}
-    volumes:
-      - sycorax-mongodb-volume:/data/db
-    networks:
-      - sycorax-network
-    ports:
-      - '27017:27017'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
 volumes:
-  sycorax-mongodb-volume:
+  sycorax-volume:
     driver: local
 
 networks:
