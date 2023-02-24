@@ -1,5 +1,7 @@
 # Sycorax
 
+**It is under development**
+
 Sycorax is a queue service written in Golang that is designed to be fast, powerful, resilient, and scalable.
 
 It leverages Golang's built-in support for concurrency and memory management to achieve high performance and throughput.
@@ -37,14 +39,5 @@ Overview:
 ---
 
 ## Docs (Swagger, AsyncAPI, Decisions history)
-
-Our service documentation is centered around a swagger (rest) and async-api (events)
-
-```
-/docs              # Index page
-/docs/rest-api     # The rendered OpenAPI spec for the sync endpoints
-```
-
-Details of business rules and definitions:
 
 `TBD.`
