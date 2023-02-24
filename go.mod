@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/gin-gonic/gin v1.8.2
 	github.com/google/uuid v1.3.0
-	github.com/opensource-cloud/sycorax v0.0.0-20230122232806-ed4f55d15afd
 	gopkg.in/go-playground/validator.v8 v8.18.2
 )
 
@@ -25,6 +24,14 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
+	github.com/tidwall/btree v1.6.0 // indirect
+	github.com/tidwall/buntdb v1.2.10 // indirect
+	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/grect v0.1.4 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/rtred v0.1.2 // indirect
+	github.com/tidwall/tinyqueue v0.1.1 // indirect
 	github.com/ugorji/go/codec v1.2.8 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/net v0.4.0 // indirect

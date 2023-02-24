@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/opensource-cloud/sycorax/core"
-	"github.com/opensource-cloud/sycorax/infrastructure/config"
 )
 
 type (
@@ -67,16 +66,10 @@ func (h *HttpError) ParseErrorsToFields(c *gin.Context, body interface{}) {
 
 // NewHttpError returns a new instance of HttpError struct
 func NewHttpError(m string, c string, e error) *HttpError {
-	var cause = "UNKNOWN"
-
-	if config.GetApp().OnDebugMode {
-		cause = e.Error()
-	}
-
 	return &HttpError{
 		Message: m,
 		Code:    c,
-		Cause:   cause,
+		Cause:   e.Error(),
 		Fields:  []*FieldError{},
 	}
 }

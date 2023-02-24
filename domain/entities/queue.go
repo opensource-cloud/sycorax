@@ -1,25 +1,22 @@
 package domain
 
 import (
-	"time"
-
+	"errors"
 	"github.com/opensource-cloud/sycorax/core"
 	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
+	"time"
+)
+
+const (
+	FIFO         = "FIFO"
+	MemoryDriver = "MEMORY_DRIVER"
 )
 
 type (
-	QueuePublishConfig struct {
+	QueueConfig struct {
+		Type             string `json:"type"`
 		Driver           string `json:"driver"`
 		MaxSizeOfMessage int    `json:"max_size_of_message"`
-	}
-	QueueDeliveryConfig struct {
-		Driver     string `json:"driver"`
-		RawMessage bool   `json:"raw_message"`
-	}
-	QueueConfig struct {
-		Type     string               `json:"type"`
-		Publish  *QueuePublishConfig  `json:"publish"`
-		Delivery *QueueDeliveryConfig `json:"delivery"`
 	}
 	Queue struct {
 		Id        string       `json:"id"`
@@ -35,15 +32,9 @@ func NewQueue(dto dtos.CreateQueueDTO) (*Queue, error) {
 		Id:   core.NewUUID(),
 		Name: dto.Name,
 		Config: &QueueConfig{
-			Type: "FIFO",
-			Publish: &QueuePublishConfig{
-				Driver:           "MEMORY",
-				MaxSizeOfMessage: 1, // MB
-			},
-			Delivery: &QueueDeliveryConfig{
-				Driver:     "HTTP_POLLING",
-				RawMessage: true,
-			},
+			Type:             dto.Config.Type,
+			Driver:           dto.Config.Driver,
+			MaxSizeOfMessage: dto.Config.MaxSizeOfMessage,
 		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -59,5 +50,21 @@ func NewQueue(dto dtos.CreateQueueDTO) (*Queue, error) {
 }
 
 func (q *Queue) isValid() error {
+	if len(q.Name) >= 255 {
+		return errors.New("queue name must not contain more than 255 characters")
+	}
+
+	if q.Config.Type != FIFO {
+		return errors.New("queue config type not allowed, check the documentation")
+	}
+
+	if q.Config.Driver != MemoryDriver {
+		return errors.New("queue config driver not allowed, check the documentation")
+	}
+
+	if q.Config.MaxSizeOfMessage > 5 {
+		return errors.New("queue max size of message must not be greater than 5 megabytes")
+	}
+
 	return nil
 }

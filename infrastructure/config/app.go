@@ -2,7 +2,9 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"path"
 )
 
 type (
@@ -16,12 +18,19 @@ type (
 		Http      *Http
 		Resources *Resources
 	}
+	Paths struct {
+		PWD       string
+		Resources string
+		Database  string
+		Yaml      string
+	}
 	App struct {
 		Environment string
 		OnDebugMode bool
 		IsDEV       bool
 		IsPROD      bool
 		Vars        *Vars
+		Paths       *Paths
 	}
 )
 
@@ -37,8 +46,20 @@ func GetEnvVar(key string, shouldThrowOnMissing bool, defaultValue string) strin
 }
 
 func GetApp() *App {
+	// envs
 	appEnv := GetEnvVar("APP_ENV", false, "DEV")
 	debug := GetEnvVar("APP_DEBUG", false, "0")
+
+	// paths
+	pwd, err := os.Getwd()
+	if err != nil {
+		log.Printf("Error getting pwd: %s , defining as empty string", err)
+		pwd = ""
+	}
+	resourcesPath := path.Join(pwd, "resources")
+	databasePath := path.Join(resourcesPath, "database")
+	yamlPath := path.Join(resourcesPath, "yaml")
+
 	return &App{
 		Environment: appEnv,
 		OnDebugMode: debug == "1",
@@ -51,6 +72,12 @@ func GetApp() *App {
 			Resources: &Resources{
 				Path: GetEnvVar("RESOURCES_PATH", true, ""),
 			},
+		},
+		Paths: &Paths{
+			PWD:       pwd,
+			Resources: resourcesPath,
+			Database:  databasePath,
+			Yaml:      yamlPath,
 		},
 	}
 }
