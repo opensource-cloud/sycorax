@@ -3,9 +3,9 @@ package domain
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/opensource-cloud/sycorax/core"
 	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
-	"log"
 	"time"
 )
 
@@ -76,7 +76,7 @@ func (q *Queue) isValid() error {
 func (q *Queue) ToJSON() string {
 	queueAsJson, err := json.Marshal(q)
 	if err != nil {
-		log.Fatalf("Error parsing queue %s, err: %s", q.Name, err)
+		panic(fmt.Sprintf("Error parsing queue %s, err: %s", q.Name, err))
 	}
 	return string(queueAsJson)
 }
