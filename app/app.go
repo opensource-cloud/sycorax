@@ -1,4 +1,4 @@
-package config
+package app
 
 import (
 	"fmt"
@@ -11,11 +11,7 @@ type (
 	Resources struct {
 		Path string
 	}
-	Http struct {
-		Port string
-	}
 	Vars struct {
-		Http      *Http
 		Resources *Resources
 	}
 	Paths struct {
@@ -31,8 +27,12 @@ type (
 		IsPROD      bool
 		Vars        *Vars
 		Paths       *Paths
+		DB          *JsonDB
+		Services    *Services
 	}
 )
+
+var app *App = nil
 
 func GetEnvVar(key string, shouldThrowOnMissing bool, defaultValue string) string {
 	value := os.Getenv(key)
@@ -46,9 +46,14 @@ func GetEnvVar(key string, shouldThrowOnMissing bool, defaultValue string) strin
 }
 
 func GetApp() *App {
+	// keeps app as singleton unique per runtime (pointer)
+	if app != nil {
+		return app
+	}
+
 	// envs
-	appEnv := GetEnvVar("APP_ENV", false, "DEV")
-	debug := GetEnvVar("APP_DEBUG", false, "0")
+	appEnv := GetEnvVar("ENV_MODE", false, "DEV")
+	debug := GetEnvVar("DEBUG", false, "1")
 
 	// paths
 	pwd, err := os.Getwd()
@@ -56,21 +61,19 @@ func GetApp() *App {
 		log.Printf("Error getting pwd: %s , defining as empty string", err)
 		pwd = ""
 	}
+
 	resourcesPath := path.Join(pwd, "resources")
 	databasePath := path.Join(resourcesPath, "database")
 	yamlPath := path.Join(resourcesPath, "yaml")
 
-	return &App{
+	app = &App{
 		Environment: appEnv,
 		OnDebugMode: debug == "1",
 		IsDEV:       appEnv == "DEV",
 		IsPROD:      appEnv == "PROD",
 		Vars: &Vars{
-			Http: &Http{
-				Port: GetEnvVar("APP_PORT", true, ""),
-			},
 			Resources: &Resources{
-				Path: GetEnvVar("RESOURCES_PATH", true, ""),
+				Path: GetEnvVar("RESOURCES_PATH", false, "resources"),
 			},
 		},
 		Paths: &Paths{
@@ -79,5 +82,17 @@ func GetApp() *App {
 			Database:  databasePath,
 			Yaml:      yamlPath,
 		},
+		DB:       nil,
+		Services: nil,
 	}
+
+	// Initializing json db
+	app.InitJsonDB()
+
+	app.Services = &Services{
+		db:   app.DB,
+		vars: app.Vars,
+	}
+
+	return app
 }

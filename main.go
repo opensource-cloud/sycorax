@@ -1,14 +1,18 @@
 package main
 
 import (
-	"github.com/opensource-cloud/sycorax/infrastructure/config"
-	"github.com/opensource-cloud/sycorax/infrastructure/server"
+	"github.com/opensource-cloud/sycorax/app"
+	"log"
 )
 
 func main() {
-	app := config.GetApp()
+	log.Print("Creating app from scratch")
+	application := app.GetApp()
+	log.Print("Application created")
 
-	app.LoadResourcesFolder()
+	log.Print("Loading all yaml files inside resources folder")
+	application.LoadYamlFiles()
 
-	server.StartHttpServer(app)
+	log.Print("Starting application routes server")
+	application.StartHttpServer()
 }

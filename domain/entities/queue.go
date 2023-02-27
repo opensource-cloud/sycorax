@@ -1,9 +1,11 @@
 package domain
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/opensource-cloud/sycorax/core"
 	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
+	"log"
 	"time"
 )
 
@@ -20,6 +22,7 @@ type (
 	}
 	Queue struct {
 		Id        string       `json:"id"`
+		RefID     string       `json:"ref_id"`
 		Name      string       `json:"name"`
 		Config    *QueueConfig `json:"config"`
 		CreatedAt time.Time    `json:"created_at"`
@@ -29,8 +32,9 @@ type (
 
 func NewQueue(dto dtos.CreateQueueDTO) (*Queue, error) {
 	queue := &Queue{
-		Id:   core.NewUUID(),
-		Name: dto.Name,
+		Id:    core.NewUUID(),
+		RefID: dto.RefID,
+		Name:  dto.Name,
 		Config: &QueueConfig{
 			Type:             dto.Config.Type,
 			Driver:           dto.Config.Driver,
@@ -55,11 +59,11 @@ func (q *Queue) isValid() error {
 	}
 
 	if q.Config.Type != FIFO {
-		return errors.New("queue config type not allowed, check the documentation")
+		return errors.New("queue app type not allowed, check the documentation")
 	}
 
 	if q.Config.Driver != MemoryDriver {
-		return errors.New("queue config driver not allowed, check the documentation")
+		return errors.New("queue app driver not allowed, check the documentation")
 	}
 
 	if q.Config.MaxSizeOfMessage > 5 {
@@ -67,4 +71,12 @@ func (q *Queue) isValid() error {
 	}
 
 	return nil
+}
+
+func (q *Queue) ToJSON() string {
+	queueAsJson, err := json.Marshal(q)
+	if err != nil {
+		log.Fatalf("Error parsing queue %s, err: %s", q.Name, err)
+	}
+	return string(queueAsJson)
 }

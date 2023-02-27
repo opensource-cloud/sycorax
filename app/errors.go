@@ -1,9 +1,8 @@
-package server
+package app
 
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/opensource-cloud/sycorax/core"
@@ -15,11 +14,11 @@ type (
 		Field   string `json:"field"`
 		Value   string `json:"value"`
 	}
-	HttpError struct {
-		Message string        `json:"message"`
-		Code    string        `json:"code"`
-		Cause   string        `json:"cause"`
-		Fields  []*FieldError `json:"fields"`
+	SycoraxError struct {
+		Message     string        `json:"message"`
+		TypeOfError string        `json:"type_of_error"`
+		Reason      string        `json:"reason"`
+		Fields      []*FieldError `json:"fields"`
 	}
 )
 
@@ -42,7 +41,7 @@ func validationErrorToText(e validator.FieldError) string {
 	return fmt.Sprintf("%s is not valid", field)
 }
 
-func (h *HttpError) ParseErrorsToFields(c *gin.Context, body interface{}) {
+func (object *SycoraxError) ParseErrorsToFields(c *gin.Context, body interface{}) {
 	r := core.NewReflection(body)
 	if len(c.Errors) > 0 {
 		for _, e := range c.Errors {
@@ -53,7 +52,7 @@ func (h *HttpError) ParseErrorsToFields(c *gin.Context, body interface{}) {
 					message := validationErrorToText(err)
 					field := r.GetJsonPropertyName(err.Field())
 					value, _ := json.Marshal(err.Value())
-					h.Fields = append(h.Fields, &FieldError{
+					object.Fields = append(object.Fields, &FieldError{
 						Message: message,
 						Field:   field,
 						Value:   string(value),
@@ -64,20 +63,16 @@ func (h *HttpError) ParseErrorsToFields(c *gin.Context, body interface{}) {
 	}
 }
 
-// NewHttpError returns a new instance of HttpError struct
-func NewHttpError(m string, c string, e error) *HttpError {
-	return &HttpError{
-		Message: m,
-		Code:    c,
-		Cause:   e.Error(),
-		Fields:  []*FieldError{},
+// NewSycoraxError returns a new instance of SycoraxError struct
+func NewSycoraxError(m string, t string, e error) *SycoraxError {
+	return &SycoraxError{
+		Message:     m,
+		TypeOfError: t,
+		Reason:      e.Error(),
+		Fields:      []*FieldError{},
 	}
 }
 
-func NewInvalidSchemaError(e error) *HttpError {
-	return NewHttpError("Invalid schema", "SCHEMA", e)
-}
-
-func NewInternalServerError(e error) *HttpError {
-	return NewHttpError("Internal server error", "INTERNAL", e)
+func NewInvalidSchemaError(e error) *SycoraxError {
+	return NewSycoraxError("Invalid schema", "SCHEMA", e)
 }
