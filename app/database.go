@@ -1,7 +1,6 @@
 package app
 
 import (
-	"errors"
 	"fmt"
 	"github.com/tidwall/buntdb"
 	"log"
@@ -16,10 +15,12 @@ type (
 
 // InitJsonDB Returns a new instance of json db
 func (app *App) InitJsonDB() {
+	log.Println("")
+	log.Println("--------------- [DB] ---------------")
+	log.Print("Initializing json db")
+
 	// TODO: Rethink the name of the db
 	fileName := "sycorax.db"
-
-	log.Print("Initializing json db")
 
 	log.Printf("Trying to open to open the db file, path: %s", app.Paths.Database)
 	dbPath := path.Join(app.Paths.Database, fileName)
@@ -28,16 +29,32 @@ func (app *App) InitJsonDB() {
 		log.Fatalf("Can not open json db: %s", err)
 	}
 
+	log.Print("Setting db config")
+	// Config.SyncPolicy = Always - fsync after every write, very durable, slower
+	err = db.SetConfig(buntdb.Config{
+		SyncPolicy: 2,
+	})
+	if err != nil {
+		log.Fatalf("Error setting db config: %v", err)
+		return
+	}
+
 	// Creating indexes
-	err = db.CreateIndex("queues", "queues:*", buntdb.IndexString)
+	log.Println("Creating queues db index")
+	err = db.CreateIndex("queues", "queues:*", buntdb.IndexJSON("refId"))
 	if err != nil {
 		log.Fatalf("Error creating queues db index, err: %s", err)
 		return
 	}
+	log.Println("Queues index db created")
 
 	app.DB = &JsonDB{
 		db,
 	}
+
+	log.Println("DB Initialized")
+	log.Println("--------------- [DB] ---------------")
+	log.Println("")
 }
 
 func (jdb *JsonDB) Close() {
@@ -94,18 +111,11 @@ func (jdb *JsonDB) Set(key string, value string) error {
 func (jdb *JsonDB) Delete(key string) error {
 	log.Printf("Deletting %s on database", key)
 	err := jdb.db.Update(func(tx *buntdb.Tx) error {
-		val, err := tx.Delete(key)
-		if err != nil {
-			return err
-		}
-		if val != "" {
-			return errors.New(fmt.Sprintf("Key %s and Value %s was not deletted from database", key, val))
-		}
-		log.Printf("Object %s successfully deleted", key)
-		return nil
+		_, err := tx.Delete(key)
+		return err
 	})
 	if err != nil {
-		log.Printf("Error removing key  %s on database, error: %s", key, err)
+		log.Printf("Error deleting key %s, detail: %v", key, err)
 		return err
 	}
 	return nil
