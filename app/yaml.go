@@ -22,6 +22,9 @@ type (
 )
 
 func (app *App) LoadYamlFiles() *App {
+	log.Println("")
+	log.Println("--------------- [Yaml - Resources] ---------------")
+
 	files, err := os.ReadDir(app.Paths.Yaml)
 	if err != nil {
 		log.Fatal(err)
@@ -42,16 +45,16 @@ func (app *App) LoadYamlFiles() *App {
 
 	countOfQueues := len(queues)
 	log.Printf("Count of queues %d", countOfQueues)
-
 	log.Println("")
-	log.Println("--------------- [Queues - Yaml] ---------------")
+
 	if countOfQueues > 0 {
 		for _, queue := range queues {
 			createQueueFromYaml(app, queue)
 			log.Println("")
 		}
 	}
-	log.Println("--------------- [Queues - Yaml] ---------------")
+
+	log.Println("--------------- [Yaml - Resources] ---------------")
 	log.Println("")
 
 	return app
