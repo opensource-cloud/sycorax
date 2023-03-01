@@ -76,3 +76,7 @@ func NewSycoraxError(m string, t string, e error) *SycoraxError {
 func NewInvalidSchemaError(e error) *SycoraxError {
 	return NewSycoraxError("Invalid schema", "SCHEMA", e)
 }
+
+func NewInternalServerError(e error) *SycoraxError {
+	return NewSycoraxError("Internal Server Error", "INTERNAL", e)
+}

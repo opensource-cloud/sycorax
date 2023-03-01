@@ -1,6 +1,7 @@
 package app
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
@@ -50,4 +51,35 @@ func (s *Services) CreateQueue(dto dtos.CreateQueueDTO) (*domain.Queue, error) {
 	log.Printf("Queue %s - %s created successfully", queue.Name, queue.RefID)
 
 	return queue, nil
+}
+
+// FindManyQueues Get all queues on DB by index.
+func (s Services) FindManyQueues() ([]*domain.Queue, error) {
+	log.Print("Finding all queues in db")
+
+	db := s.db
+
+	queuesAsString, err := db.FindManyByIndex("queues")
+	if err != nil {
+		log.Print("Error getting all queues")
+		return nil, err
+	}
+
+	var queues []*domain.Queue
+
+	log.Print("Mapping all queues to struct")
+
+	for _, queueAsString := range queuesAsString {
+		var incomingQueue *domain.Queue
+		err := json.Unmarshal([]byte(queueAsString), &incomingQueue)
+		if err != nil {
+			log.Printf("Error parsing queue %s", queuesAsString)
+			return nil, err
+		}
+		queues = append(queues, incomingQueue)
+	}
+
+	log.Print("All queues loaded, returning")
+
+	return queues, nil
 }

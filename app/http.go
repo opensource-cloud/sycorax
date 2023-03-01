@@ -6,7 +6,6 @@ import (
 	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
 	"log"
 	"net/http"
-	"time"
 )
 
 // StartHttpServer starts the routes server using app config
@@ -16,11 +15,13 @@ func (app *App) StartHttpServer() {
 	// Setting all middlewares
 	r.Use(headersMiddleware())
 	r.Use(tracingMiddleware())
-	r.Use(loggerMiddleware())
 
 	// Loading all routes
-	// TODO: Abstract this into a function?
+	// TODO: Abstract this into another file??
+
+	// Queues
 	r.POST("/queues", postCreateQueue)
+	r.GET("/queues", findManyQueues)
 
 	// Set all configs for development mode
 	if app.IsDEV {
@@ -55,19 +56,6 @@ func headersMiddleware() gin.HandlerFunc {
 		c.Header("Content-Type", "application/json")
 	}
 }
-func loggerMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		t := time.Now()
-
-		c.Next()
-
-		// after request
-		latency := time.Since(t).Milliseconds()
-		status := c.Writer.Status()
-
-		log.Printf("path %s | latency %d | status %d", c.Request.URL.String(), latency, status)
-	}
-}
 func tracingMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		traceId := c.GetHeader("X-Trace-Id")
@@ -81,6 +69,10 @@ func tracingMiddleware() gin.HandlerFunc {
 }
 
 // TODO: Abstract all this handlers functions into another file
+
+// Queues
+
+// POST /queues
 func postCreateQueue(c *gin.Context) {
 	var dto dtos.CreateQueueDTO
 
@@ -101,4 +93,26 @@ func postCreateQueue(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusCreated, queue)
+}
+
+// GET /queues
+func findManyQueues(c *gin.Context) {
+	queues, err := app.Services.FindManyQueues()
+	if err != nil {
+		body := NewInternalServerError(err)
+		c.IndentedJSON(http.StatusInternalServerError, body)
+		return
+	}
+
+	items := make([]interface{}, len(queues))
+
+	for i, q := range queues {
+		items[i] = q
+	}
+
+	pagination := NewPagination(items)
+
+	c.IndentedJSON(http.StatusOK, pagination)
+
+	return
 }
