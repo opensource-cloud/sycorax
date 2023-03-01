@@ -2,8 +2,8 @@ package app
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/buntdb"
-	"log"
 	"path"
 )
 
@@ -15,7 +15,6 @@ type (
 
 // InitJsonDB Returns a new instance of json db
 func (app *App) InitJsonDB() {
-	log.Println("")
 	log.Println("--------------- [DB] ---------------")
 	log.Print("Initializing json db")
 
@@ -54,7 +53,6 @@ func (app *App) InitJsonDB() {
 
 	log.Println("DB Initialized")
 	log.Println("--------------- [DB] ---------------")
-	log.Println("")
 }
 
 func (jdb *JsonDB) Close() {

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
 	domain "github.com/opensource-cloud/sycorax/domain/entities"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 type Services struct {

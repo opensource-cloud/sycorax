@@ -2,8 +2,8 @@ package app
 
 import (
 	dto "github.com/opensource-cloud/sycorax/domain/dtos"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
-	"log"
 	"os"
 	"path"
 )
@@ -22,7 +22,6 @@ type (
 )
 
 func (app *App) LoadYamlFiles() *App {
-	log.Println("")
 	log.Println("--------------- [Yaml - Resources] ---------------")
 
 	files, err := os.ReadDir(app.Paths.Yaml)
@@ -45,17 +44,14 @@ func (app *App) LoadYamlFiles() *App {
 
 	countOfQueues := len(queues)
 	log.Printf("Count of queues %d", countOfQueues)
-	log.Println("")
 
 	if countOfQueues > 0 {
 		for _, queue := range queues {
 			createQueueFromYaml(app, queue)
-			log.Println("")
 		}
 	}
 
 	log.Println("--------------- [Yaml - Resources] ---------------")
-	log.Println("")
 
 	return app
 }

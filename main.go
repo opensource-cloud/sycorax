@@ -2,12 +2,13 @@ package main
 
 import (
 	"github.com/opensource-cloud/sycorax/app"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	log.SetFormatter(&log.JSONFormatter{})
+
 	log.Println("------------------------------ [Sycorax] ------------------------------")
-	log.Println("")
 
 	log.Print("Creating app from scratch")
 	application := app.GetApp()
@@ -17,7 +18,6 @@ func main() {
 	application.LoadYamlFiles()
 
 	log.Println("------------------------------ [Sycorax] ------------------------------")
-	log.Println("")
 
 	application.StartHttpServer()
 }

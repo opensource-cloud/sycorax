@@ -4,20 +4,29 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/opensource-cloud/sycorax/core"
 	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
+	"time"
 )
 
 // StartHttpServer starts the routes server using app config
 func (app *App) StartHttpServer() {
-	r := gin.Default()
+	r := gin.New()
+
+	// Formatting request log
+	r.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+		return ""
+	}))
+
+	// Setting the recovery mode
+	r.Use(gin.Recovery())
 
 	// Setting all middlewares
 	r.Use(headersMiddleware())
 	r.Use(tracingMiddleware())
 
 	// Loading all routes
-	// TODO: Abstract this into another file??
+	// TODO: Abstract this into another file?
 
 	// Queues
 	r.POST("/queues", postCreateQueue)
@@ -58,13 +67,32 @@ func headersMiddleware() gin.HandlerFunc {
 }
 func tracingMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		start := time.Now()
+
 		traceId := c.GetHeader("X-Trace-Id")
+
 		if traceId == "" {
 			traceId = core.NewUUID()
 		}
 
+		log.WithFields(log.Fields{
+			"trace_id":       traceId,
+			"request_url":    c.Request.URL.Path,
+			"request_method": c.Request.Method,
+			"user_agent":     c.Request.UserAgent(),
+		}).Info("A new request received")
+
 		c.Header("X-Trace-Id", traceId)
 		c.Set("traceId", traceId)
+
+		c.Next()
+
+		latency := time.Since(start)
+		log.WithFields(log.Fields{
+			"trace_id":             traceId,
+			"response_latency":     latency.String(),
+			"response_status_code": c.Writer.Status(),
+		}).Info("Request ended")
 	}
 }
 
@@ -86,8 +114,6 @@ func postCreateQueue(c *gin.Context) {
 
 	queue, err := app.Services.CreateQueue(dto)
 	if err != nil {
-		traceId, _ := c.Get("traceId")
-		log.Print("Bad Request Trace: ", traceId, ", Error: ", err.Error())
 		c.IndentedJSON(http.StatusBadRequest, NewInvalidSchemaError(err))
 		return
 	}
