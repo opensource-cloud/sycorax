@@ -7,8 +7,8 @@ type (
 		MaxSizeOfMessage int    `json:"max_size_of_message"`
 	}
 	CreateQueueDTO struct {
-		RefID  string                `json:"ref_id" binding:"required"`
 		Name   string                `json:"name"  binding:"required"`
-		Config *CreateQueueConfigDTO `json:"app" binding:"required"`
+		RefID  string                `json:"ref_id" binding:"required"`
+		Config *CreateQueueConfigDTO `json:"config" binding:"required"`
 	}
 )

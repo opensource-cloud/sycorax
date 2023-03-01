@@ -55,19 +55,19 @@ func NewQueue(dto dtos.CreateQueueDTO) (*Queue, error) {
 
 func (q *Queue) isValid() error {
 	if len(q.Name) >= 255 {
-		return errors.New("queue name must not contain more than 255 characters")
+		return errors.New("queue.name must not contain more than 255 characters")
 	}
 
 	if q.Config.Type != FIFO {
-		return errors.New("queue app type not allowed, check the documentation")
+		return errors.New("queue.config type not allowed, check the documentation")
 	}
 
 	if q.Config.Driver != MemoryDriver {
-		return errors.New("queue app driver not allowed, check the documentation")
+		return errors.New("queue.config.driver not allowed, check the documentation")
 	}
 
 	if q.Config.MaxSizeOfMessage > 5 {
-		return errors.New("queue max size of message must not be greater than 5 megabytes")
+		return errors.New("queue.config.max_size_of_message must not be greater than 5 megabytes")
 	}
 
 	return nil
