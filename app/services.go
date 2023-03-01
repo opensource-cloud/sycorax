@@ -5,7 +5,8 @@ import (
 	"errors"
 	"fmt"
 	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
-	domain "github.com/opensource-cloud/sycorax/domain/entities"
+	entities "github.com/opensource-cloud/sycorax/domain/entities"
+	domainErrors "github.com/opensource-cloud/sycorax/domain/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -22,7 +23,7 @@ func NewServices(db *JsonDB) *Services {
 }
 
 // CreateQueue Does all the necessary logic to create a queue and save into the db (used by http and file resources)
-func (s *Services) CreateQueue(dto dtos.CreateQueueDTO) (*domain.Queue, error) {
+func (s *Services) CreateQueue(dto dtos.CreateQueueDTO) (*entities.Queue, error) {
 	log.Printf("Creating queue %s", dto.Name)
 
 	db := s.db
@@ -38,7 +39,7 @@ func (s *Services) CreateQueue(dto dtos.CreateQueueDTO) (*domain.Queue, error) {
 		}
 	}
 
-	queue, err := domain.NewQueue(dto)
+	queue, err := entities.NewQueue(dto)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("Error creating %s, err: %s", dto.Name, err))
 	}
@@ -54,7 +55,7 @@ func (s *Services) CreateQueue(dto dtos.CreateQueueDTO) (*domain.Queue, error) {
 }
 
 // FindManyQueues Get all queues on DB by index.
-func (s Services) FindManyQueues() ([]*domain.Queue, error) {
+func (s *Services) FindManyQueues() ([]*entities.Queue, error) {
 	log.Print("Finding all queues in db")
 
 	db := s.db
@@ -65,12 +66,12 @@ func (s Services) FindManyQueues() ([]*domain.Queue, error) {
 		return nil, err
 	}
 
-	var queues []*domain.Queue
+	var queues []*entities.Queue
 
 	log.Print("Mapping all queues to struct")
 
 	for _, queueAsString := range queuesAsString {
-		var incomingQueue *domain.Queue
+		var incomingQueue *entities.Queue
 		err := json.Unmarshal([]byte(queueAsString), &incomingQueue)
 		if err != nil {
 			log.Printf("Error parsing queue %s", queuesAsString)
@@ -82,4 +83,29 @@ func (s Services) FindManyQueues() ([]*domain.Queue, error) {
 	log.Print("All queues loaded, returning")
 
 	return queues, nil
+}
+
+// FindOneQueueByRefId Get one queue by reference id
+func (s *Services) FindOneQueueByRefId(refId string) (*entities.Queue, error) {
+	log.Print("Trying to find a queue by ref id")
+
+	db := s.db
+
+	refIdKey := db.MakeQueueKey(refId)
+
+	queueAsString := db.Get(refIdKey)
+	if queueAsString == "" {
+		log.WithFields(log.Fields{
+			"queue.ref_id": refId,
+		}).Print("queue does not exists")
+		return nil, domainErrors.QUEUE_DOES_NOT_EXISTS
+	}
+
+	var queue *entities.Queue
+	err := json.Unmarshal([]byte(queueAsString), &queue)
+	if err != nil {
+		return nil, err
+	}
+
+	return queue, nil
 }

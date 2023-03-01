@@ -1,9 +1,11 @@
 package app
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/opensource-cloud/sycorax/core"
 	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
+	domainErrors "github.com/opensource-cloud/sycorax/domain/errors"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
@@ -31,6 +33,7 @@ func (app *App) StartHttpServer() {
 	// Queues
 	r.POST("/queues", postCreateQueue)
 	r.GET("/queues", findManyQueues)
+	r.GET("/queues/:ref_id", findOneQueueByRefId)
 
 	// Set all configs for development mode
 	if app.IsDEV {
@@ -122,6 +125,7 @@ func postCreateQueue(c *gin.Context) {
 }
 
 // GET /queues
+// TODO: Add logs to this route
 func findManyQueues(c *gin.Context) {
 	queues, err := app.Services.FindManyQueues()
 	if err != nil {
@@ -140,5 +144,34 @@ func findManyQueues(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, pagination)
 
+	return
+}
+
+// GET /queues/:ref_id
+func findOneQueueByRefId(c *gin.Context) {
+	refId := c.Param("ref_id")
+	if refId == "" {
+		body := NewInvalidSchemaError(errors.New("invalid reference id"))
+		c.IndentedJSON(http.StatusBadRequest, body)
+	}
+
+	queue, err := app.Services.FindOneQueueByRefId(refId)
+	if err != nil {
+		switch err {
+		case domainErrors.QUEUE_DOES_NOT_EXISTS:
+			body := NewSycoraxError("Queue does not exists", "NOT_FOUND", err)
+			body.AddField(&FieldError{
+				Field:   "ref_id",
+				Value:   refId,
+				Message: "Wrong reference identifier",
+			})
+			c.IndentedJSON(http.StatusNotFound, body)
+		default:
+			c.IndentedJSON(http.StatusInternalServerError, NewInternalServerError(err))
+		}
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, queue)
 	return
 }

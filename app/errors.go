@@ -63,6 +63,11 @@ func (object *SycoraxError) ParseErrorsToFields(c *gin.Context, body interface{}
 	}
 }
 
+func (object *SycoraxError) AddField(field *FieldError) *SycoraxError {
+	object.Fields = append(object.Fields, field)
+	return object
+}
+
 // NewSycoraxError returns a new instance of SycoraxError struct
 func NewSycoraxError(m string, t string, e error) *SycoraxError {
 	return &SycoraxError{
