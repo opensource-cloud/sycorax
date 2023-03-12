@@ -21,8 +21,8 @@ Overview:
 ---
 
 ## System design (Architecture)
+![Image DrawIO](./docs/architecture/sycorax-system-design.png 'Architecture')
 
-`TBD.`
 
 ---
 
