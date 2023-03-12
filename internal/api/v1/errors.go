@@ -1,11 +1,11 @@
-package app
+package v1
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/opensource-cloud/sycorax/core"
+	"github.com/opensource-cloud/sycorax/internal/core"
 )
 
 type (
@@ -80,6 +80,10 @@ func NewSycoraxError(m string, t string, e error) *SycoraxError {
 
 func NewInvalidSchemaError(e error) *SycoraxError {
 	return NewSycoraxError("Invalid schema", "SCHEMA", e)
+}
+
+func NewUnprocessableEntity(e error) *SycoraxError {
+	return NewSycoraxError("Unprocessable entity", "ENTITY", e)
 }
 
 func NewInternalServerError(e error) *SycoraxError {

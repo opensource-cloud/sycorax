@@ -1,4 +1,4 @@
-package app
+package dtos
 
 type (
 	PaginationMetadata struct {
@@ -11,9 +11,9 @@ type (
 )
 
 // NewPagination returns a new instance of Pagination
-func NewPagination(items []interface{}) Pagination {
+func NewPagination(items []interface{}) *Pagination {
 	count := len(items)
-	return Pagination{
+	return &Pagination{
 		Items: items,
 		Metadata: PaginationMetadata{
 			Count: count,

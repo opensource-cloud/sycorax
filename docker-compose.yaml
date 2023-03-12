@@ -22,5 +22,4 @@ volumes:
 networks:
   sycorax-network:
     driver: bridge
-    name: sycorax-network
     external: true

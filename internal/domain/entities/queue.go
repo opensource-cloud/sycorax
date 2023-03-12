@@ -1,17 +1,21 @@
-package domain
+package entities
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/opensource-cloud/sycorax/core"
-	dtos "github.com/opensource-cloud/sycorax/domain/dtos"
+	"github.com/opensource-cloud/sycorax/internal/core"
+	"github.com/opensource-cloud/sycorax/internal/domain/dtos"
 	"time"
 )
 
 const (
 	FIFO         = "FIFO"
 	MemoryDriver = "MEMORY_DRIVER"
+)
+
+var (
+	QueueDoesNotExists = errors.New("queue does not exists")
 )
 
 type (
@@ -30,10 +34,10 @@ type (
 	}
 )
 
-func NewQueue(dto dtos.CreateQueueDTO) (*Queue, error) {
+func NewQueue(refID string, dto dtos.UpsertQueueDTO) (*Queue, error) {
 	queue := &Queue{
 		Id:    core.NewUUID(),
-		RefID: dto.RefID,
+		RefID: refID,
 		Name:  dto.Name,
 		Config: &QueueConfig{
 			Type:             dto.Config.Type,
@@ -79,4 +83,20 @@ func (q *Queue) ToJSON() string {
 		panic(fmt.Sprintf("Error parsing queue %s, err: %s", q.Name, err))
 	}
 	return string(queueAsJson)
+}
+
+func (q *Queue) Update(dto dtos.UpsertQueueDTO) error {
+	q.Name = dto.Name
+	q.Config = &QueueConfig{
+		Type:             dto.Config.Type,
+		Driver:           dto.Config.Driver,
+		MaxSizeOfMessage: dto.Config.MaxSizeOfMessage,
+	}
+
+	err := q.isValid()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,7 +1,8 @@
 package main
 
 import (
-	"github.com/opensource-cloud/sycorax/app"
+	"github.com/opensource-cloud/sycorax/internal/api"
+	"github.com/opensource-cloud/sycorax/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -10,14 +11,18 @@ func main() {
 
 	log.Println("------------------------------ [Sycorax] ------------------------------")
 
-	log.Print("Creating app from scratch")
-	application := app.GetApp()
-	log.Print("Application created")
+	log.Print("Loading config")
+	c := config.NewConfig()
 
-	log.Print("Loading all yaml files inside resources folder")
-	application.LoadYamlFiles()
+	go c.LoadYamlFiles()
+
+	server := api.NewServer(c)
+
+	err := server.Start()
+	if err != nil {
+		panic(err)
+	}
 
 	log.Println("------------------------------ [Sycorax] ------------------------------")
 
-	application.StartHttpServer()
 }

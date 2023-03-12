@@ -1,7 +1,6 @@
-package app
+package jsondb
 
 import (
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/buntdb"
 	"path"
@@ -11,18 +10,19 @@ type (
 	JsonDB struct {
 		db *buntdb.DB
 	}
+	JsonDBConfig struct {
+		Path   string
+		DBName string
+	}
 )
 
-// InitJsonDB Returns a new instance of json db
-func (app *App) InitJsonDB() {
+// NewJsonDB Returns a new instance of json db
+func NewJsonDB(config *JsonDBConfig) (*JsonDB, error) {
 	log.Println("--------------- [DB] ---------------")
 	log.Print("Initializing json db")
 
-	// TODO: Rethink the name of the db
-	fileName := "sycorax.db"
-
-	log.Printf("Trying to open to open the db file, path: %s", app.Paths.Database)
-	dbPath := path.Join(app.Paths.Database, fileName)
+	log.Printf("Trying to open to open the db file, path: %s", config.Path)
+	dbPath := path.Join(config.Path, config.DBName)
 	db, err := buntdb.Open(dbPath)
 	if err != nil {
 		log.Fatalf("Can not open json db: %s", err)
@@ -35,7 +35,7 @@ func (app *App) InitJsonDB() {
 	})
 	if err != nil {
 		log.Fatalf("Error setting db config: %v", err)
-		return
+		return nil, err
 	}
 
 	// Creating indexes
@@ -43,16 +43,16 @@ func (app *App) InitJsonDB() {
 	err = db.CreateIndex("queues", "queues:*", buntdb.IndexJSON("refId"))
 	if err != nil {
 		log.Fatalf("Error creating queues db index, err: %s", err)
-		return
+		return nil, err
 	}
 	log.Println("Queues index db created")
 
-	app.DB = &JsonDB{
-		db,
-	}
-
 	log.Println("DB Initialized")
 	log.Println("--------------- [DB] ---------------")
+
+	return &JsonDB{
+		db: db,
+	}, nil
 }
 
 func (jdb *JsonDB) Close() {
@@ -136,8 +136,4 @@ func (jdb *JsonDB) FindManyByIndex(index string) ([]string, error) {
 		return nil, err
 	}
 	return list, nil
-}
-
-func (jdb *JsonDB) MakeQueueKey(id string) string {
-	return fmt.Sprintf("queues:%s", id)
 }

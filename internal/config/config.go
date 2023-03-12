@@ -1,8 +1,8 @@
-package app
+package config
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
+	jsondb "github.com/opensource-cloud/sycorax/internal/database/engine"
 	"os"
 	"path"
 )
@@ -20,20 +20,18 @@ type (
 		Database  string
 		Yaml      string
 	}
-	App struct {
+	Config struct {
 		Environment string
 		OnDebugMode bool
 		IsDEV       bool
 		IsPROD      bool
 		Vars        *Vars
 		Paths       *Paths
-		DB          *JsonDB
-		Services    *Services
+		DB          *jsondb.JsonDB
 	}
 )
 
-var app *App = nil
-
+// GetEnvVar Returns an env var by key, can throw a error and return a default value as string
 func GetEnvVar(key string, shouldThrowOnMissing bool, defaultValue string) string {
 	value := os.Getenv(key)
 	if value == "" && shouldThrowOnMissing {
@@ -45,10 +43,13 @@ func GetEnvVar(key string, shouldThrowOnMissing bool, defaultValue string) strin
 	return value
 }
 
-func GetApp() *App {
-	// keeps app as singleton unique per runtime (pointer)
-	if app != nil {
-		return app
+var config *Config = nil
+
+// NewConfig Returns a new Config struct
+func NewConfig() *Config {
+	// keeps api as singleton unique per runtime (pointer)
+	if config != nil {
+		return config
 	}
 
 	// envs
@@ -58,7 +59,6 @@ func GetApp() *App {
 	// paths
 	pwd, err := os.Getwd()
 	if err != nil {
-		log.Printf("Error getting pwd: %s , defining as empty string", err)
 		pwd = ""
 	}
 
@@ -66,7 +66,15 @@ func GetApp() *App {
 	databasePath := path.Join(resourcesPath, "database")
 	yamlPath := path.Join(resourcesPath, "yaml")
 
-	app = &App{
+	db, err := jsondb.NewJsonDB(&jsondb.JsonDBConfig{
+		Path:   databasePath,
+		DBName: "sycorax.db",
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	config = &Config{
 		Environment: appEnv,
 		OnDebugMode: debug == "1",
 		IsDEV:       appEnv == "DEV",
@@ -82,17 +90,8 @@ func GetApp() *App {
 			Database:  databasePath,
 			Yaml:      yamlPath,
 		},
-		DB:       nil,
-		Services: nil,
+		DB: db,
 	}
 
-	// Initializing json db
-	app.InitJsonDB()
-
-	app.Services = &Services{
-		db:   app.DB,
-		vars: app.Vars,
-	}
-
-	return app
+	return config
 }
